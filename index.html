@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wanderwell — Mini Tourism Website</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #0f1724;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 6px 20px rgba(16,24,40,0.08);
+      --radius: 14px;
+    }
+    [data-theme="dark"]{
+      --bg: #0b1220;
+      --card: #071029;
+      --text: #e6eef8;
+      --muted: #9aa9bf;
+      --accent: #60a5fa;
+      --glass: rgba(255,255,255,0.04);
+      --shadow: 0 6px 20px rgba(2,6,23,0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:linear-gradient(180deg,var(--bg),var(--bg));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding:32px;
+    }
+
+    .container{max-width:1100px;margin:0 auto}
+
+    header{
+      display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;
+    }
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:grid;place-items:center;color:white;font-weight:700;box-shadow:var(--shadow)}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted)}
+
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{background:var(--card);border:1px solid rgba(0,0,0,0.04);padding:8px 12px;border-radius:10px;cursor:pointer;box-shadow:var(--shadow)}
+    .toggle{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px}
+
+    .hero{
+      display:grid;grid-template-columns:1fr 360px;gap:22px;align-items:center;margin-bottom:28px
+    }
+    .hero-card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .search{display:flex;gap:8px}
+    .search input{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:var(--glass);color:var(--text)}
+    .cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--accent),#7c3aed);color:white;padding:10px 14px;border-radius:12px;border:none;cursor:pointer}
+
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .chip{padding:8px 12px;border-radius:999px;background:var(--glass);border:1px solid rgba(0,0,0,0.04);cursor:pointer;color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+    .card{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .card img{width:100%;height:160px;object-fit:cover;display:block}
+    .card-body{padding:14px;flex:1;display:flex;flex-direction:column}
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .rating{background:linear-gradient(90deg,#fde68a,#fb923c);padding:6px 8px;border-radius:8px;font-weight:600}
+    .desc{color:var(--muted);font-size:14px;margin-bottom:12px}
+    .btn-row{margin-top:auto;display:flex;gap:8px}
+
+    footer{margin-top:30px;color:var(--muted);text-align:center}
+
+    /* Gallery modal */
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.open{display:flex}
+    .modal .panel{background:var(--card);border-radius:12px;max-width:980px;width:100%;overflow:hidden}
+    .modal .panel img{width:100%;height:60vh;object-fit:cover}
+    .modal .panel .meta{padding:12px}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+    }
+
+    /* subtle animations */
+    .card{transition:transform .22s ease, box-shadow .22s ease}
+    .card:hover{transform:translateY(-6px)}
+
+    /* form */
+    .contact{display:grid;gap:10px}
+    .contact input,.contact textarea{padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:var(--glass);color:var(--text)}
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo">W</div>
+        <div>
+          <h1>Wanderwell</h1>
+          <p class="lead">Handpicked destinations, travel tips, and local vibes</p>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="toggle btn" id="themeToggle" role="button" tabindex="0">🌙 <span id="themeLabel">Dark</span></div>
+        <button class="btn" id="aboutBtn">About</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-card">
+        <h2 style="margin-top:0">Find your next trip</h2>
+        <p class="lead">Search destinations, filter by vibe, and save favourites.</p>
+        <div class="search" style="margin-top:12px">
+          <input id="searchInput" placeholder="Search city, country, or experience (e.g., mountain, beach)" />
+          <button class="cta" id="searchBtn">Search</button>
+        </div>
+        <div class="filters" aria-hidden="false">
+          <div class="chip" data-filter="beach">Beach</div>
+          <div class="chip" data-filter="mountain">Mountain</div>
+          <div class="chip" data-filter="city">City</div>
+          <div class="chip" data-filter="adventure">Adventure</div>
+          <div class="chip" data-filter="culture">Culture</div>
+        </div>
+      </div>
+
+      <aside class="hero-card">
+        <h3 style="margin-top:0">Featured trip</h3>
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=3a9c9f3cc3b3b2d0b2f1d7f7c1c5b0d2" alt="beach" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:12px">
+        <p class="desc">7 days in Bali — beaches, rice terraces & culture. Includes local guides and optional surf lessons.</p>
+        <div style="display:flex;gap:8px">
+          <button class="btn">View itinerary</button>
+          <button class="cta">Book now</button>
+        </div>
+      </aside>
+    </section>
+
+    <section>
+      <h3>Popular destinations</h3>
+      <div class="grid" id="cards">
+        <!-- Cards injected by JS for convenience -->
+      </div>
+    </section>
+
+    <section style="margin-top:22px">
+      <div class="hero-card">
+        <h3 style="margin-top:0">Stay in the loop</h3>
+        <p class="lead">Subscribe for short monthly guides and local tips.</p>
+        <form class="contact" onsubmit="event.preventDefault(); alert('Thanks — this is a demo form.');">
+          <input placeholder="Your name" required />
+          <input type="email" placeholder="Email address" required />
+          <button class="cta" style="width:160px">Subscribe</button>
+        </form>
+      </div>
+    </section>
+
+    <footer>
+      <small>Made with ❤️ — Wanderwell · Demo single-file site · No backend</small>
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="panel">
+      <img id="modalImg" src="" alt="">
+      <div class="meta">
+        <div>
+          <strong id="modalTitle"></strong>
+          <div id="modalLoc" style="color:var(--muted)"></div>
+        </div>
+        <div style="padding:10px">
+          <button class="btn" id="closeModal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data: small curated list of destinations (images from Unsplash)
+    const DESTINATIONS = [
+      {id:1,title:'Bali, Indonesia',loc:'Ubud · Beaches · Rice terraces',img:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=d9f2a5b3a1a6b8f0d2f3a8e3c7c1b234',type:'beach',rating:4.8,desc:'Tropical beaches, cultural temples and yoga retreats.'},
+      {id:2,title:'Swiss Alps, Switzerland',loc:'Zermatt · Hiking · Scenic',img:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9d79ea4b5f2b6c6c4b1e3a9f1f2d3e4a',type:'mountain',rating:4.9,desc:'Snow-capped peaks, alpine lakes and cozy chalets.'},
+      {id:3,title:'Kyoto, Japan',loc:'Temples · Cherry blossoms',img:'https://images.unsplash.com/photo-1549692520-acc6669e2f0c?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=7b8d9f1a2e4c6b9d0a1f2b3c4d5e6f7a',type:'culture',rating:4.7,desc:'Historic shrines, tea culture and seasonal beauty.'},
+      {id:4,title:'Mysore, India',loc:'Palaces · Heritage',img:'https://images.unsplash.com/photo-1546549039-9f3f4f6f3f3f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=abcd1234abcd1234abcd1234abcd1234',type:'culture',rating:4.4,desc:'Royal heritage, ornate palaces and local markets.'},
+      {id:5,title:'Reykjavík, Iceland',loc:'Northern Lights · Glaciers',img:'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=1a2b3c4d5e6f7g8h9i0j',type:'adventure',rating:4.8,desc:'Glacial landscapes, hot springs and aurora sightings.'},
+      {id:6,title:'Goa, India',loc:'Beaches · Nightlife',img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=3a9c9f3cc3b3b2d0b2f1d7f7c1c5b0d2',type:'beach',rating:4.3,desc:'Sun, sand, and vibrant seafood markets.'}
+    ];
+
+    const cardsEl = document.getElementById('cards');
+
+    function renderCards(list){
+      cardsEl.innerHTML = '';
+      list.forEach(d => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <img loading="lazy" src="${d.img}" alt="${d.title}">
+          <div class="card-body">
+            <div class="meta">
+              <div>
+                <strong>${d.title}</strong>
+                <div style="font-size:13px;color:var(--muted)">${d.loc}</div>
+              </div>
+              <div class="rating">${d.rating}</div>
+            </div>
+            <div class="desc">${d.desc}</div>
+            <div class="btn-row">
+              <button class="btn" data-id="${d.id}" onclick="openModal(${d.id})">Preview</button>
+              <button class="cta" onclick="alert('Demo: show booking for ${d.title}')">Book</button>
+            </div>
+          </div>
+        `;
+        cardsEl.appendChild(card);
+      })
+    }
+
+    renderCards(DESTINATIONS);
+
+    // Search & filters
+    document.getElementById('searchBtn').addEventListener('click', ()=>{
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = DESTINATIONS.filter(d => d.title.toLowerCase().includes(q) || d.loc.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q));
+      renderCards(filtered.length?filtered:DESTINATIONS);
+    });
+
+    document.querySelectorAll('.chip').forEach(ch=>{
+      ch.addEventListener('click', ()=>{
+        const f = ch.dataset.filter;
+        const filtered = DESTINATIONS.filter(d=>d.type===f);
+        renderCards(filtered.length?filtered:DESTINATIONS);
+      })
+    });
+
+    // Modal
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modalImg');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalLoc = document.getElementById('modalLoc');
+    function openModal(id){
+      const d = DESTINATIONS.find(x=>x.id===id);
+      modalImg.src = d.img;
+      modalTitle.textContent = d.title;
+      modalLoc.textContent = d.loc;
+      modal.classList.add('open');
+    }
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.classList.remove('open'));
+    modal.addEventListener('click', e=>{ if(e.target===modal) modal.classList.remove('open') });
+
+    // Theme toggle (persist in localStorage)
+    const app = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeLabel = document.getElementById('themeLabel');
+    function setTheme(t){
+      if(t==='dark') document.documentElement.setAttribute('data-theme','dark');
+      else document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', t);
+      themeLabel.textContent = t==='dark'? 'Dark' : 'Light';
+    }
+    const saved = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(saved);
+    themeToggle.addEventListener('click', ()=> setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+    // About button demo
+    document.getElementById('aboutBtn').addEventListener('click', ()=>{
+      alert('Wanderwell — demo tourism single-file site. Edit the HTML to add your own content or connect a backend.');
+    });
+  </script>
+</body>
+</html>
