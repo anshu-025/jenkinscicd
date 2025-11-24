@@ -3,7 +3,7 @@ pipeline {
   environment {
     DEPLOY_DIR = "/var/www/html"
     BRANCH = "main"
-    REPO_URL = "://github.com/anshu-025/jenkinscicd/new/main"
+    REPO_URL = "https://github.com/anshu-025/jenkinscicd/edit/main/jenkinsfile"
   }
   stages {
     stage('Checkout') { steps { git branch: env.BRANCH, url: env.REPO_URL } }
